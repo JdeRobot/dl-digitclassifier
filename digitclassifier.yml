@@ -1,5 +1,4 @@
 DigitClassifier:
-  DigitClassifier:
   Camera:
     Server: 1 # 0 -> Deactivate, 1 -> Ice , 2 -> ROS
     Proxy: "cameraA:tcp -h localhost -p 9999"
@@ -8,4 +7,4 @@ DigitClassifier:
     Name: cameraA
     Fps: 30
 
-  NodeName: DigitClassifier
+NodeName: DigitClassifier
