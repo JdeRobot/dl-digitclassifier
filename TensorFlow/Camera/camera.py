@@ -60,7 +60,7 @@ class Camera:
                 self.im_height = self.im.height
                 self.im_width = self.im.width
                 print('Image size: {0}x{1} px'.format(
-                        self.im_width, self.im_heigth))
+                        self.im_width, self.im_height))
             else:
                 print("Interface camera not connected")
 
