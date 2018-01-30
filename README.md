@@ -23,4 +23,5 @@ If you want to train a new model with the augmented MNIST datasets we used for t
 * [LMDB datasets](https://mega.nz/#!NBkBTSRI!TPfLk4nHY5WjconmhbI9jV_yZLvnImDzextQSBcA6Wk)
 
 More info about Keras implementation: [http://jderobot.org/Dpascual-tfg]
+
 More info about TensorFlow implementation: [http://jderobot.org/Naxvm-tfg]
