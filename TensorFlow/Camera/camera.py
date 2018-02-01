@@ -26,9 +26,6 @@ import threading
 
 import cv2
 import numpy as np
-import easyiceconfig as EasyIce
-from PIL import Image
-from jderobot import CameraPrx
 import tensorflow as tf
 from Net.network import Network
 import comm
