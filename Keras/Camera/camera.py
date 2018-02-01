@@ -32,8 +32,11 @@ class Camera:
         print "\nLoading Keras model..."
         self.model = load_model("Net/Model/net_4conv_patience5.h5")
         print "loaded\n"
-
-        cfg = config.load(sys.argv[1])
+        
+        try:
+            cfg = config.load(sys.argv[1])
+        except IndexError:
+            raise SystemExit('Error: Missing YML file. \n  Usage: python2 digitclassifier.py digitclassifier.yml')
 
         # starting comm
         jdrc = comm.init(cfg, 'DigitClassifier')
