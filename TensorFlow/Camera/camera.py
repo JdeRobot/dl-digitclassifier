@@ -47,7 +47,6 @@ class Camera:
             raise SystemExit('Error: Missing YML file. \n  Usage: python2 digitclassifier.py digitclassifier.yml')
 
         jdrc = comm.init(cfg, 'DigitClassifier')
-        self.cam = jdrc.getCameraClient('DigitClassifier.Camera')
 
         self.lock = threading.Lock()
 
@@ -55,6 +54,7 @@ class Camera:
         self.network = Network('Net/mnist-model')
 
         try:
+            self.cam = jdrc.getCameraClient('DigitClassifier.Camera')
 
             if self.cam.hasproxy():
                 self.im = self.cam.getImage()

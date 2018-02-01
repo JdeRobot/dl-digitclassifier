@@ -32,7 +32,7 @@ class Camera:
         print "\nLoading Keras model..."
         self.model = load_model("Net/Model/net_4conv_patience5.h5")
         print "loaded\n"
-        
+
         try:
             cfg = config.load(sys.argv[1])
         except IndexError:
@@ -41,11 +41,11 @@ class Camera:
         # starting comm
         jdrc = comm.init(cfg, 'DigitClassifier')
 
-        self.cam = jdrc.getCameraClient("DigitClassifier.Camera")
 
         self.lock = threading.Lock()
 
         try:
+            self.cam = jdrc.getCameraClient("DigitClassifier.Camera")
             if self.cam.hasproxy():
                 self.im = self.cam.getImage()
                 self.im_height = self.im.height
