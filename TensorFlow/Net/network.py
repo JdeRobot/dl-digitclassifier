@@ -2,15 +2,12 @@
 # Original code by @naxvm
 # Available on:
 # https://github.com/RoboticsURJC-students/2017-tfg-nacho_condes/blob/master/Net/network.py
-# 
+#
 #
 import tensorflow as tf
 import numpy as np
-import progressbar as pb
 import os.path
 import sys
-import h5importer
-from cprint import *
 import time
 from tensorflow.examples.tutorials.mnist import input_data
 from customevaluation import CustomEvaluation
@@ -183,6 +180,9 @@ class Network:
         loss/accuracy, for being used later by the network manager on the
         Octave script.
         '''
+        import progressbar as pb
+        import h5importer
+        from cprint import cprint
         # Summary writer (for TensorBoard)
         writer = tf.summary.FileWriter((model_path + '/logs'),
                                        graph=tf.get_default_graph())

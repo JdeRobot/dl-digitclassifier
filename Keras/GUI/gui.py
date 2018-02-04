@@ -26,6 +26,8 @@ class GUI(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.setWindowTitle("Digit Classification (Keras CNN trained with an "
                             + "augmented MNIST database)")
+	
+        self.setWindowIcon(QtGui.QIcon('resources/jderobot.png'))
         self.resize(1000, 600)
         self.move(150, 50)
         self.updGUI.connect(self.update)
