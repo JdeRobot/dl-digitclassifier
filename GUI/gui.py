@@ -10,8 +10,8 @@ https://github.com/RoboticsURJC-students/2016-tfg-nuria-oyaga/blob/master/gui/gu
 __author__ = "David Pascual Hernandez"
 __date__ = "2017/03/07"
 
-from PyQt5 import QtGui
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 
@@ -144,6 +144,8 @@ class GUI(QtWidgets.QWidget):
 
         self.cam = cam
 
+        self.pred = None  # predicted digit
+
     def update(self):
         """
         Update GUI every time the thread changes.
@@ -167,19 +169,18 @@ class GUI(QtWidgets.QWidget):
         self.im_trans_label.setPixmap(QtGui.QPixmap.fromImage(im_trans_scaled))
 
         # We "turn on" the digit that it's been classified.
-        net_out = self.cam.predict(im_prev_trans)
-        self.light_on(net_out)
+        self.light_on()
 
-    def light_on(self, out):
+    def light_on(self):
         """
         Update which digit has the "light on" depending on the
         network output.
-        @param out: str - predicted digit
         """
         for dgt in self.dgts:
             dgt.setStyleSheet("background-color: #7FFFD4; color: #000; " +
                               "font-size: 20px; border: 1px solid black;")
-            if out is not None:
-                self.dgts[out].setStyleSheet("background-color: #FFFF00; " +
-                                             "color: #000; font-size: 20px; " +
-                                             "border: 1px solid black;")
+            if self.pred is not None:
+                self.dgts[self.pred].setStyleSheet("background-color: #FFFF00; "
+                                                   + "color: #000; "
+                                                   + "font-size: 20px; "
+                                                   + "border: 1px solid black;")

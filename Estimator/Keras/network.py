@@ -11,6 +11,7 @@ __date__ = "2017/03/12"
 import os
 
 import numpy as np
+import tensorflow as tf
 from keras.utils import vis_utils
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
@@ -23,7 +24,7 @@ from DataManager.netdata import NetData
 from CustomEvaluation.customevaluation import CustomEvaluation
 from CustomEvaluation.customcallback import LearningCurves
 
-# Seed for the computer pseudorandom number generator.
+# Seed for the computer pseudo-random number generator.
 np.random.seed(123)
 
 class Network:
@@ -33,6 +34,8 @@ class Network:
         @param path: str - model path
         """
         self.model = load_model(path)
+        self.model._make_predict_function()
+        self.graph = tf.get_default_graph()  # not quite sure why this works
 
     def predict(self, im):
         """
@@ -46,7 +49,8 @@ class Network:
         else:
             im = im.reshape(1, im.shape[0], im.shape[1], 1)
 
-        digit = np.argmax(self.model.predict(im))
+        with self.graph.as_default():
+            digit = np.argmax(self.model.predict(im))
 
         return digit
 

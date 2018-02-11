@@ -39,15 +39,8 @@ class Camera:
     def __init__(self):
         """
         Camera object constructor
+        @param data: parsed YAML config. file
         """
-        # Parse YAML config. file
-        data = None
-        with open(sys.argv[1], "r") as stream:
-            try:
-                data = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-
         # Creation of the Camera through the comm-ICE proxy.
         try:
             cfg = config.load(sys.argv[1])
@@ -58,22 +51,6 @@ class Camera:
         jdrc = comm.init(cfg, "DigitClassifier")
 
         self.lock = threading.Lock()
-
-        # Import only required network
-        available_fw = ["Keras", "Tensorflow"]
-        framework = data["DigitClassifier"]["Framework"]
-        if framework == "Keras":
-            from Estimator.Keras.network import Network
-        elif framework == "TensorFlow":
-            from Estimator.TensorFlow.network import Network
-        else:
-            print("'%s' framework is not supported. Please choose one of: %s"
-                  % (framework, ', '.join(available_fw)))
-            exit()
-
-        # Load model
-        model_path = data["DigitClassifier"]["Model"]
-        self.net = Network(model_path)
 
         # Acquire first image
         try:
@@ -88,10 +65,6 @@ class Camera:
         except:
             traceback.print_exc()
             exit()
-
-        # Print info.
-        print("\nFramework: %s\nModel: %s\nImage size: %dx%d px"
-              % (framework, model_path, self.im.width, self.im.height))
 
     def get_image(self):
         """
@@ -146,12 +119,3 @@ class Camera:
         im_edges = np.uint8(im_edges)
 
         return im_edges
-
-    def predict(self, im):
-        """
-        Predict the digit present in the image.
-        @param im: np.array - input image
-        @return: str - predicted digit
-        """
-
-        return self.net.predict(im)

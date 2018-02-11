@@ -6,9 +6,9 @@ DigitClassifier:
     Topic: "/usb_cam/image_raw"
     Name: cameraA
 
-  Framework: "TensorFlow"  # Currently supported: "Keras" or "Tensorflow"
+  Framework: "Keras"  # Currently supported: "Keras" or "Tensorflow"
 
-  Model: "Estimator/TensorFlow/mnist-model/"  # path to model
+  Model: "Estimator/Keras/Model/net.h5"  # path to model
 
   NodeName: dl-digitclassifier
 
