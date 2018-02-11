@@ -1,23 +1,23 @@
-#
-# Created on Mar 12, 2017
-#
-# @author: dpascualhe
-#
-# It trains and tests a convolutional neural network with an augmented
-# MNIST dataset.
-#
+#!/usr/bin/env python
+
+"""
+network.py: Train and test a CNN against an augmented MNIST dataset.
+
+Based on https://github.com/RoboticsURJC-students/2016-tfg-david-pascual
+"""
+__author__ = "David Pascual Hernandez"
+__date__ = "2017/03/12"
 
 import os
-import sys
 
 import numpy as np
-from sklearn import metrics
 from keras.utils import vis_utils
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Dense, Dropout, Flatten
 from keras.models import Sequential, load_model
+from keras import backend
 
 from DataManager.netdata import NetData
 from CustomEvaluation.customevaluation import CustomEvaluation
@@ -25,6 +25,31 @@ from CustomEvaluation.customcallback import LearningCurves
 
 # Seed for the computer pseudorandom number generator.
 np.random.seed(123)
+
+class Network:
+    def __init__(self, path):
+        """
+        Load the Keras model.
+        @param path: str - model path
+        """
+        self.model = load_model(path)
+
+    def predict(self, im):
+        """
+        Classify a given digit.
+        :param im: np.array - image containing a digit
+        :return: classified digit
+        """
+        # Reshape image to fit model depending on backend
+        if backend.image_dim_ordering() == 'th':
+            im = im.reshape(1, 1, im.shape[0], im.shape[1])
+        else:
+            im = im.reshape(1, im.shape[0], im.shape[1], 1)
+
+        digit = np.argmax(self.model.predict(im))
+
+        return digit
+
 
 if __name__ == "__main__":
     nb_epoch = 100

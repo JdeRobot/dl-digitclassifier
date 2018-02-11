@@ -51,7 +51,7 @@ class Camera:
         self.lock = threading.Lock()
 
         # Creation of the network, and load of the model into it.
-        self.network = Network('Net/mnist-model')
+        self.net = Network('Net/mnist-model')
 
         try:
             self.cam = jdrc.getCameraClient('DigitClassifier.Camera')
@@ -120,9 +120,8 @@ class Camera:
 
         return im_edges
 
-    def classification(self, im):
+    def predict(self, im):
         ''' Calls the prediction method, and returns the digit
         which the neural network yields.'''
-        prediction = self.network.classify(im).argmax()
 
-        return prediction
+        return self.net.predict(im)

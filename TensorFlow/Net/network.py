@@ -363,7 +363,7 @@ class Network:
         print(latest_model)
         self.saver.restore(self.sess, latest_model)
 
-    def classify(self, img):
+    def predict(self, img):
         '''
         Processes the given image img, returning the predicted label.
         Arguments:
@@ -373,7 +373,7 @@ class Network:
         output = self.sess.run(self.y, feed_dict={
             self.x: img, self.keep_prob: 1.0})
 
-        return output
+        return output.argmax()
 
     def test(self, test_dataset_path, output_matrix,
              is_training=False, train_acc=None, train_loss=None,

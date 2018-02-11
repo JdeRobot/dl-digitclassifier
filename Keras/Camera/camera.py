@@ -19,9 +19,7 @@ import comm
 import config
 import cv2
 import numpy as np
-from keras import backend
-from keras.models import load_model
-
+from Net.network import Network
 
 class Camera:
 
@@ -30,7 +28,7 @@ class Camera:
         in order to predict the digit in the image.
         '''
         print "\nLoading Keras model..."
-        self.model = load_model("Net/Model/net_4conv_patience5.h5")
+        self.net = Network("Net/Model/net_4conv_patience5.h5")
         print "loaded\n"
 
         try:
@@ -108,18 +106,11 @@ class Camera:
 
         return im_edges
 
-    def classification(self, im):
-        ''' Adapts image shape depending on Keras backend (TensorFlow
-        or Theano) and returns a prediction.
-        '''
-        if backend.image_dim_ordering() == 'th':
-            im = im.reshape(1, 1, im.shape[0], im.shape[1])
-        else:
-            im = im.reshape(1, im.shape[0], im.shape[1], 1)
+    def predict(self, im):
+        """
+        Classify the digit in the image.
+        @param im: np.array - input image
+        """
 
-        prev_digito = np.where(self.model.predict(im) == 1)
-        if prev_digito[1].size == 1:
-            self.digito = prev_digito
-        else:
-            self.digito = (([0]), (["none"]))
-        return self.digito[1][0]
+        return self.net.predict(im)
+

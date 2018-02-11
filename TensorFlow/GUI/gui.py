@@ -163,7 +163,7 @@ class GUI(QtWidgets.QWidget):
         self.im_trans_label.setPixmap(QtGui.QPixmap.fromImage(im_trans_scaled))
 
         # We "turn on" the digit that it's been classified.
-        net_out = self.cam.classification(im_prev_trans)
+        net_out = self.cam.predict(im_prev_trans)
         print("Out: %d" % (net_out))
         self.lightON(net_out)
 
