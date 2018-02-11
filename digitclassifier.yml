@@ -1,0 +1,14 @@
+DigitClassifier:
+  Camera:
+    Server: 1  # 0 -> Deactivate, 1 -> Ice, 2 -> ROS
+    Proxy: "cameraA:tcp -h localhost -p 9999"
+    Format: RGB8
+    Topic: "/usb_cam/image_raw"
+    Name: cameraA
+
+  Framework: "TensorFlow"  # Currently supported: "Keras" or "Tensorflow"
+
+  Model: "Estimator/TensorFlow/mnist-model/"  # path to model
+
+  NodeName: dl-digitclassifier
+
