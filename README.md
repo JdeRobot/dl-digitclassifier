@@ -4,8 +4,10 @@
 In order to test it with Python 2.7 you must install: 
 * JdeRobot ([installation guide](http://jderobot.org/Installation))
 * OpenCV 3 (it will be automatically installed with JdeRobot)
-* Keras ([installation guide](https://keras.io/#installation))
-* TensorFlow ([installation guide](https://www.tensorflow.org/install/install_linux))
+
+Aditionally, you will need a few Python packages, generally installable via <code>python-pip</code>. We have prepared a <code>requirements.txt</code> file, which will automatically install all these dependencies by running:
+<code>pip2 installl -r requirements.txt </code>
+
 
 If you want to launch <code>digitclassifier</code>, open a terminal and run:
 <pre>
@@ -51,3 +53,4 @@ training, here they are:
 ## More info
 About Keras implementation: [http://jderobot.org/Dpascual-tfg] \
 About TensorFlow implementation: [http://jderobot.org/Naxvm-tfg]
+

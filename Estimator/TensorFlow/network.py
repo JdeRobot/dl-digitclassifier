@@ -241,7 +241,7 @@ class Network:
         DATASET_SIZE = 48000
         BATCH_SIZE = 30
         batch_count = DATASET_SIZE / BATCH_SIZE  # 1600
-        TOTAL_EPOCHS = 3
+        TOTAL_EPOCHS = 100
 
         VALIDATION_SIZE = 2000
 
