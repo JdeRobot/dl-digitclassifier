@@ -10,6 +10,7 @@ https://github.com/RoboticsURJC-students/2016-tfg-nuria-oyaga/blob/master/gui/gu
 __author__ = "David Pascual Hernandez"
 __date__ = "2017/03/07"
 
+import numpy as np
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -43,6 +44,9 @@ class GUI(QtWidgets.QWidget):
         self.im_label.resize(500, 400)
         self.im_label.move(70, 50)
         self.im_label.show()
+
+        # Transformed image.
+        self.im_trans = np.ones((28,28),np.uint8)
 
         # Transformed image label.
         self.im_trans_label = QtWidgets.QLabel(self)
@@ -151,16 +155,15 @@ class GUI(QtWidgets.QWidget):
         Update GUI every time the thread changes.
         """
         # We get the original image and display it.
-        im_prev = self.cam.get_image()[0]
+        im_prev = self.cam.get_image()
         im = QtGui.QImage(im_prev.data, im_prev.shape[1], im_prev.shape[0],
                           QtGui.QImage.Format_RGB888)
         im_scaled = im.scaled(self.im_label.size())
         self.im_label.setPixmap(QtGui.QPixmap.fromImage(im_scaled))
 
-        # We get the transformed image and display it.
-        im_prev_trans = self.cam.get_image()[1]
-        im_trans = QtGui.QImage(im_prev_trans.data, im_prev_trans.shape[1],
-                                im_prev_trans.shape[0],
+        # We display the transformed image.
+        im_trans = QtGui.QImage(self.im_trans.data, self.im_trans.shape[1],
+                                self.im_trans.shape[0],
                                 QtGui.QImage.Format_Indexed8)
 
         colortable = [QtGui.qRgb(i, i, i) for i in range(255)]

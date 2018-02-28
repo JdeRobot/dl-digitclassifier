@@ -71,21 +71,19 @@ class Camera:
         Get an image from the webcam and return the original image
         with a ROI draw over it and the transformed image that we're
         going to use to make the prediction.
-        @return: list - original & transformed images
+        @return: np.array - camera feed image
         """
         if self.cam:
             self.lock.acquire()
 
             im = np.frombuffer(self.im.data, dtype=np.uint8)
             im.shape = self.im.height, self.im.width, 3
-            im_trans = self.transform_image(im)
 
             cv2.rectangle(im, (218, 138), (422, 342), (0, 0, 255), 2)
-            ims = [im, im_trans]
 
             self.lock.release()
 
-            return ims
+            return im
 
     def update(self):
         """
@@ -97,25 +95,3 @@ class Camera:
             self.im = self.cam.getImage()
 
             self.lock.release()
-
-    @staticmethod
-    def transform_image(im):
-        """
-        Transform the image before prediction.
-        @param im: np.array - input image
-        @return: np.array - transformed image
-        """
-        im_crop = im[140:340, 220:420]
-        im_gray = cv2.cvtColor(im_crop, cv2.COLOR_BGR2GRAY)
-        im_blur = cv2.GaussianBlur(im_gray, (5, 5), 0)  # Noise reduction.
-
-        im_res = cv2.resize(im_blur, (28, 28))
-
-        # Edge extraction.
-        im_sobel_x = cv2.Sobel(im_res, cv2.CV_32F, 1, 0, ksize=5)
-        im_sobel_y = cv2.Sobel(im_res, cv2.CV_32F, 0, 1, ksize=5)
-        im_edges = cv2.add(abs(im_sobel_x), abs(im_sobel_y))
-        im_edges = cv2.normalize(im_edges, None, 0, 255, cv2.NORM_MINMAX)
-        im_edges = np.uint8(im_edges)
-
-        return im_edges

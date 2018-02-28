@@ -40,7 +40,7 @@ if __name__ == '__main__':
     cam = Camera()
     app = QtWidgets.QApplication(sys.argv)
     window = GUI(cam)
-    estimator = Estimator(window, cam, data)
+    estimator = Estimator(window, data)
     window.show()
 
     # Threading camera
