@@ -13,14 +13,14 @@ class Estimator:
     """
     Estimator class makes a prediction given an input image.
     """
-    def __init__(self, gui, data):
+    def __init__(self, gui, cam, data):
         """
         Estimator object constructor.
         @param gui: GUI object
         @param data: parsed YAML config. file
         """
         self.gui = gui
-        self.cam = self.gui.cam
+        self.cam = cam
 
         # Import only required network
         available_fw = ["Keras", "Tensorflow"]
