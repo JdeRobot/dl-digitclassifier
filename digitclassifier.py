@@ -16,40 +16,57 @@ __date__ = "2017/10/--"
 
 import signal
 import sys
-import yaml
 from PyQt5 import QtWidgets
+import config
+import comm
 
 from Camera.camera import Camera
 from Camera.threadcamera import ThreadCamera
 from GUI.gui import GUI
 from GUI.threadgui import ThreadGUI
-from Estimator.estimator import Estimator
-from Estimator.threadestimator import ThreadEstimator
+from Network.threadnetwork import ThreadNetwork
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 if __name__ == '__main__':
     # Parse YAML config. file
-    data = None
-    with open(sys.argv[1], "r") as stream:
-        try:
-            data = yaml.load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+    try:
+        cfg = config.load(sys.argv[1])
+    except IndexError:
+        raise SystemExit('Missing YML file. Usage: python2 digitclassifier.py digitclassifier.yml')
 
-    cam = Camera()
+    # Create camera proxy
+    jdrc = comm.init(cfg, 'DigitClassifier')
+    proxy = jdrc.getCameraClient('DigitClassifier.Camera')
+
+    # Parse network parameters
+    network_framework = cfg.getNode()['DigitClassifier']['Framework']
+    network_model_path = cfg.getNode()['DigitClassifier']['Model']
+
+    # We define the network import depending on the chosen framework
+    if network_framework.lower() == 'keras':
+        from Network.Keras.network import Network
+        framework_title = 'Keras'
+    elif network_framework.lower() == 'tensorflow':
+        from Network.TensorFlow.network import Network
+        framework_title = 'TensorFlow'
+    else:
+        raise SystemExit(('%s not supported! Supported frameworks: Keras, TensorFlow') % (network_framework))
+
+    cam = Camera(proxy)
+    network = Network(network_model_path)
+    t_network = ThreadNetwork(network)
+
     app = QtWidgets.QApplication(sys.argv)
-    window = GUI(cam)
-    estimator = Estimator(window, cam, data)
+    window = GUI(framework_title)
+    window.setCamera(cam)
+    window.setNetwork(network, t_network)
     window.show()
+    t_network.start()
 
     # Threading camera
     t_cam = ThreadCamera(cam)
     t_cam.start()
-
-    # Threading estimator
-    t_estimator = ThreadEstimator(estimator)
-    t_estimator.start()
 
     # Threading GUI
     t_gui = ThreadGUI(window)

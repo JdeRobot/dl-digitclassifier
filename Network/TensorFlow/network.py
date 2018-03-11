@@ -12,6 +12,8 @@ import time
 from tensorflow.examples.tutorials.mnist import input_data
 from customevaluation import CustomEvaluation
 
+import cv2
+
 
 class Network:
     '''Class which creates a CNN, specially prepared to process 28x28 images,
@@ -50,6 +52,8 @@ class Network:
 
         # common session to share variables.
         self.sess = tf.Session()
+
+        self.activated = True
 
         # initializing methods.
         def weight_variable(shape, name):
@@ -130,6 +134,9 @@ class Network:
         if model:
             self.load(model)
 
+        self.input_image = None
+        self.output_digit = None
+
     def conv2d(self, x, W):
         return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1],
                             padding='SAME')
@@ -139,6 +146,29 @@ class Network:
         return tf.nn.max_pool(x, ksize=[1, 2, 3, 1],
                               strides=[1, 2, 2, 1],
                               padding='SAME')
+
+
+    def setInputImage(self, im):
+        im_crop = im[140:340, 220:420]
+        im_gray = cv2.cvtColor(im_crop, cv2.COLOR_BGR2GRAY)
+        im_blur = cv2.GaussianBlur(im_gray, (5, 5), 0)
+
+        im_res = cv2.resize(im_blur, (28, 28))
+
+        # Edge extraction
+        im_sobel_x = cv2.Sobel(im_res, cv2.CV_32F, 1, 0, ksize=5)
+        im_sobel_y = cv2.Sobel(im_res, cv2.CV_32F, 0, 1, ksize=5)
+        im_edges = cv2.add(abs(im_sobel_x), abs(im_sobel_y))
+        im_edges = cv2.normalize(im_edges, None, 0, 255, cv2.NORM_MINMAX)
+        im_edges = np.uint8(im_edges)
+
+        self.input_image = im_edges
+
+        return im_edges
+        
+
+    def getOutputDigit(self):
+        return self.output_digit
 
     def train(self, model_path, training_dataset_path,
               validation_dataset_path, early_stopping,
@@ -363,17 +393,21 @@ class Network:
         print(latest_model)
         self.saver.restore(self.sess, latest_model)
 
-    def predict(self, img):
+    def predict(self):
         '''
         Processes the given image img, returning the predicted label.
         Arguments:
             img (np.array): image to be classified
         '''
-        img = img.reshape([1, 784])
+        if self.input_image is not None:
+            img = self.input_image.reshape([1, 784])
+        else:
+            img = np.zeros([1,784])
+
         output = self.sess.run(self.y, feed_dict={
             self.x: img, self.keep_prob: 1.0})
 
-        return output.argmax()
+        self.output_digit = output.argmax()
 
     def test(self, test_dataset_path, output_matrix,
              is_training=False, train_acc=None, train_loss=None,
