@@ -15,7 +15,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-
+import cv2
 class GUI(QtWidgets.QWidget):
     """
     GUI class creates the GUI that we're going to use to preview the
@@ -25,14 +25,14 @@ class GUI(QtWidgets.QWidget):
 
     updGUI = QtCore.pyqtSignal()
 
-    def __init__(self, cam, parent=None):
+    def __init__(self, framework_title, parent=None):
         """
         GUI object constructor.
         @param cam: Camera object
         """
 
         QtWidgets.QWidget.__init__(self, parent)
-        self.setWindowTitle("Digit Classifier")
+        self.setWindowTitle("Digit Classifier (%s)" % (framework_title))
 
         self.setWindowIcon(QtGui.QIcon('resources/jderobot.png'))
         self.resize(1000, 600)
@@ -146,9 +146,15 @@ class GUI(QtWidgets.QWidget):
                            "font-size: 20px; border: 1px solid black;")
         self.dgts.append(lab9)
 
+        self.pred = None  # predicted digit
+
+
+    def setCamera(self, cam):
         self.cam = cam
 
-        self.pred = None  # predicted digit
+    def setNetwork(self, network, t_network):
+        self.network = network
+        self.t_network = t_network
 
     def update(self):
         """
@@ -156,22 +162,26 @@ class GUI(QtWidgets.QWidget):
         """
         # We get the original image and display it.
         im_prev = self.cam.get_image()
+        
+        im_prev_trans = self.network.setInputImage(im_prev)
+
+
         im = QtGui.QImage(im_prev.data, im_prev.shape[1], im_prev.shape[0],
                           QtGui.QImage.Format_RGB888)
         im_scaled = im.scaled(self.im_label.size())
+
+
         self.im_label.setPixmap(QtGui.QPixmap.fromImage(im_scaled))
 
-        # We display the transformed image.
-        im_trans = QtGui.QImage(self.im_trans.data, self.im_trans.shape[1],
-                                self.im_trans.shape[0],
+        im_trans = QtGui.QImage(im_prev_trans.data, im_prev_trans.shape[1],
+                                im_prev_trans.shape[0],
                                 QtGui.QImage.Format_Indexed8)
-
         colortable = [QtGui.qRgb(i, i, i) for i in range(255)]
         im_trans.setColorTable(colortable)
         im_trans_scaled = im_trans.scaled(self.im_trans_label.size())
         self.im_trans_label.setPixmap(QtGui.QPixmap.fromImage(im_trans_scaled))
 
-        # We "turn on" the digit that it's been classified.
+        self.pred = self.network.getOutputDigit()
         self.light_on()
 
     def light_on(self):

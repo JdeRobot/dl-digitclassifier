@@ -55,6 +55,15 @@ class Network:
         return digit
 
 
+
+    def setInputImage(self, im):
+    self.input_image = im
+    
+
+    def getOutputImage(self):
+        return self.output_image
+
+
 if __name__ == "__main__":
     nb_epoch = 100
     batch_size = 128
