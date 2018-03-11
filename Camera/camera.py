@@ -36,32 +36,18 @@ class Camera:
     in order to predict the digit in the image.
     """
 
-    def __init__(self):
+    def __init__(self, proxy):
         """
         Camera object constructor
-        @param data: parsed YAML config. file
+        @param proxy: created proxy, read from YML file.
         """
-        # Creation of the Camera through the comm-ICE proxy.
-        try:
-            cfg = config.load(sys.argv[1])
-        except IndexError:
-            raise SystemExit("Error: Missing YML file. \n Usage: python2"
-                             "digitclassifier.py digitclassifier.yml")
 
-        jdrc = comm.init(cfg, "DigitClassifier")
 
         self.lock = threading.Lock()
 
         # Acquire first image
         try:
-            self.cam = jdrc.getCameraClient("DigitClassifier.Camera")
-
-            if self.cam.hasproxy():
-                self.im = self.cam.getImage()
-            else:
-                print("Interface camera not connected")
-                exit()
-
+            self.cam = proxy
         except:
             traceback.print_exc()
             exit()
