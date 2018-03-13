@@ -24,6 +24,8 @@ from DataManager.netdata import NetData
 from CustomEvaluation.customevaluation import CustomEvaluation
 from CustomEvaluation.customcallback import LearningCurves
 
+import cv2
+
 # Seed for the computer pseudo-random number generator.
 np.random.seed(123)
 
@@ -37,31 +39,56 @@ class Network:
         self.model._make_predict_function()
         self.graph = tf.get_default_graph()  # not quite sure why this works
 
-    def predict(self, im):
+        self.input_image = None
+        self.output_digit = None
+
+        self.activated = True
+
+    def predict(self):
         """
         Classify a given digit.
         :param im: np.array - image containing a digit
         :return: classified digit
         """
         # Reshape image to fit model depending on backend
+
+        if self.input_image is not None:
+            im = self.input_image
+        else:
+            im = np.zeros([28, 28])
+
+
         if backend.image_dim_ordering() == 'th':
             im = im.reshape(1, 1, im.shape[0], im.shape[1])
         else:
-            im = im.reshape(1, im.shape[0], im.shape[1], 1)
+            im = im.reshape([1, 28, 28, 1])
 
         with self.graph.as_default():
-            digit = np.argmax(self.model.predict(im))
-
-        return digit
+            self.output_digit = np.argmax(self.model.predict(im))
 
 
 
     def setInputImage(self, im):
-    self.input_image = im
+        im_crop = im[140:340, 220:420]
+        im_gray = cv2.cvtColor(im_crop, cv2.COLOR_BGR2GRAY)
+        im_blur = cv2.GaussianBlur(im_gray, (5, 5), 0)
+
+        im_res = cv2.resize(im_blur, (28,28))
+
+        # Edge extraction
+        im_sobel_x = cv2.Sobel(im_res, cv2.CV_32F, 1, 0, ksize=5)
+        im_sobel_y = cv2.Sobel(im_res, cv2.CV_32F, 0, 1, ksize=5)
+        im_edges = cv2.add(abs(im_sobel_x), abs(im_sobel_y))
+        im_edges = cv2.normalize(im_edges, None, 0, 255, cv2.NORM_MINMAX)
+        im_edges = np.uint8(im_edges)
+
+        self.input_image = im_edges
+
+        return im_edges
     
 
-    def getOutputImage(self):
-        return self.output_image
+    def getOutputDigit(self):
+        return self.output_digit
 
 
 if __name__ == "__main__":
