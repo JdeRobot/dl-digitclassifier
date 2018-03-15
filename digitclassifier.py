@@ -62,7 +62,6 @@ if __name__ == '__main__':
     window.setCamera(cam)
     window.setNetwork(network, t_network)
     window.show()
-    t_network.start()
 
     # Threading camera
     t_cam = ThreadCamera(cam)
