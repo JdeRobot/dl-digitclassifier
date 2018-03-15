@@ -134,7 +134,6 @@ class Network:
 
             # attributes containing the input image and the output category.
         self.input_image = None
-        self.processed_image = np.zeros([28, 28])
         self.output_digit = None
 
         self.lock = threading.Lock()
@@ -385,6 +384,7 @@ class Network:
         ''' Transforms the image into a 28x28 pixel grayscale image and
         applies a sobel filter (both x and y directions).
         '''
+        print("transform llamado")
         im_crop = np.copy(self.input_image[140:340, 220:420])
         im_gray = cv2.cvtColor(im_crop, cv2.COLOR_BGR2GRAY)
         im_blur = cv2.GaussianBlur(im_gray, (5, 5), 0)  # Noise reduction.

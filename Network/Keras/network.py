@@ -40,36 +40,27 @@ class Network:
         self.graph = tf.get_default_graph()  # not quite sure why this works
 
         self.input_image = None
+        self.processed_image = np.zeros([28, 28])
         self.output_digit = None
 
-        self.activated = True
+        self.activated = False
 
-    def predict(self):
-        """
-        Classify a given digit.
-        :param im: np.array - image containing a digit
-        :return: classified digit
-        """
-        # Reshape image to fit model depending on backend
-
-        if self.input_image is not None:
-            im = self.input_image
-        else:
-            im = np.zeros([28, 28])
-
-
+    def classify(self, img):
+        '''
+        Processes the given image img, returning the predicted label.
+        Arguments:
+            img (np.array): image to be classified
+        '''
         if backend.image_dim_ordering() == 'th':
-            im = im.reshape(1, 1, im.shape[0], im.shape[1])
+            img = img.reshape(1, 1, img.shape[0], img.shape[1])
         else:
-            im = im.reshape([1, 28, 28, 1])
-
+            img = img.reshape([1, 28, 28, 1])
         with self.graph.as_default():
-            self.output_digit = np.argmax(self.model.predict(im))
+            output = np.argmax(self.model.predict(img))
+        return output
 
-
-
-    def setInputImage(self, im):
-        im_crop = im[140:340, 220:420]
+    def transformImage(self):
+        im_crop = self.input_image[140:340, 220:420]
         im_gray = cv2.cvtColor(im_crop, cv2.COLOR_BGR2GRAY)
         im_blur = cv2.GaussianBlur(im_gray, (5, 5), 0)
 
@@ -82,14 +73,16 @@ class Network:
         im_edges = cv2.normalize(im_edges, None, 0, 255, cv2.NORM_MINMAX)
         im_edges = np.uint8(im_edges)
 
-        self.input_image = im_edges
+        self.processed_image = im_edges
 
-        return im_edges
-    
 
-    def getOutputDigit(self):
-        return self.output_digit
+    def update(self):
+        self.output_digit = self.classify(self.processed_image)
 
+    def toggleNetwork(self):
+        self.activated = not self.activated
+
+        return self.activated
 
 if __name__ == "__main__":
     nb_epoch = 100
@@ -193,4 +186,3 @@ if __name__ == "__main__":
 
     results_dict = results.dictionary()
     results.log(results_dict)
-
