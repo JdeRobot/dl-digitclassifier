@@ -36,11 +36,23 @@ class GUI(QtWidgets.QWidget):
         self.im_label.move(70, 50)
         self.im_label.show()
 
+        # Original image fps label.
+        self.video_framerate_label = QtWidgets.QLabel(self)
+        self.video_framerate_label.move(300, 450)
+        self.video_framerate_label.resize(50, 40)
+        self.video_framerate_label.show()
+
         # Transformed image label.
         self.im_trans_label = QtWidgets.QLabel(self)
         self.im_trans_label.resize(200, 200)
         self.im_trans_label.move(900, 50)
         self.im_trans_label.show()
+
+        # Transformed image framerate label.
+        self.trans_framerate_label = QtWidgets.QLabel(self)
+        self.trans_framerate_label.move(980, 250)
+        self.trans_framerate_label.resize(50, 40)
+        self.trans_framerate_label.show()
 
 
         self.dgts = []
@@ -184,6 +196,9 @@ class GUI(QtWidgets.QWidget):
         self.im_label.setPixmap(QtGui.QPixmap.fromImage(im_scaled))
 
         self.updateOutput()
+
+        self.video_framerate_label.setText("%d fps" % (self.t_cam.framerate))
+        self.trans_framerate_label.setText("%d fps" % (self.t_network.framerate))
 
     def lightON(self, out):
         ''' Updates which digit has the "light on" depending on the

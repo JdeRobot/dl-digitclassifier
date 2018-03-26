@@ -36,5 +36,8 @@ class ThreadCamera(threading.Thread):
             dtms = ((dt.days * 24 * 60 * 60 + dt.seconds) * 1000 +
                     dt.microseconds / 1000.0)
 
+            delta = max(self.t_cycle, dtms)
+            self.framerate = int(1000.0 / delta)
+
             if(dtms < self.t_cycle):
                 time.sleep((self.t_cycle - dtms) / 1000.0)
