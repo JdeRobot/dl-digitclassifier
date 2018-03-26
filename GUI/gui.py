@@ -142,6 +142,7 @@ class GUI(QtWidgets.QWidget):
         self.button_cont_detection.move(700, 100)
         self.button_cont_detection.clicked.connect(self.toggleNetwork)
         self.button_cont_detection.setText('Continuous')
+        self.button_cont_detection.setStyleSheet('QPushButton {color: green;}')
 
 
         # Button for processing a single frame
@@ -166,36 +167,23 @@ class GUI(QtWidgets.QWidget):
     def setNetwork(self, network, t_network):
         self.network = network
         self.t_network = t_network
-        self.t_network.start()
-        self.toggleNetwork()
 
 
-    def setCamera(self, cam):
+    def setCamera(self, cam, t_cam):
         ''' Declares the Camera object '''
         self.cam = cam
+        self.t_cam = t_cam
 
     def update(self):
         ''' Updates the GUI for every time the thread change '''
         # We get the original image and display it.
         self.im_prev = self.cam.get_image()
-        self.t_network.updateImage(self.im_prev)
         im = QtGui.QImage(self.im_prev.data, self.im_prev.shape[1], self.im_prev.shape[0],
                           QtGui.QImage.Format_RGB888)
         im_scaled = im.scaled(self.im_label.size())
         self.im_label.setPixmap(QtGui.QPixmap.fromImage(im_scaled))
 
-        # Processed image (fetched from the network)
-        im_prev_trans = self.t_network.getProcessedImage()
-        im_trans = QtGui.QImage(im_prev_trans.data, im_prev_trans.shape[1],
-                                im_prev_trans.shape[0],
-                                QtGui.QImage.Format_Indexed8)
-        colortable = [QtGui.qRgb(i, i, i) for i in range(255)]
-        im_trans.setColorTable(colortable)
-        im_trans_scaled = im_trans.scaled(self.im_trans_label.size())
-        self.im_trans_label.setPixmap(QtGui.QPixmap.fromImage(im_trans_scaled))
-
-        # We "turn on" the digit that it's been classified.
-        self.lightON(self.network.output_digit)
+        self.updateOutput()
 
     def lightON(self, out):
         ''' Updates which digit has the "light on" depending on the
@@ -211,12 +199,28 @@ class GUI(QtWidgets.QWidget):
                                              "border: 1px solid black;")
 
     def toggleNetwork(self):
-        self.t_network.activated = not self.t_network.activated
+        self.t_network.toggle()
 
-        if self.t_network.activated:
-            self.button_cont_detection.setStyleSheet('QPushButton {color: red;}')
-        else:
+        if self.t_network.is_activated:
             self.button_cont_detection.setStyleSheet('QPushButton {color: green;}')
+        else:
+            self.button_cont_detection.setStyleSheet('QPushButton {color: red;}')
 
     def updateOnce(self):
-        self.t_network.runOnce(self.im_prev)
+        self.t_network.runOnce()
+        self.updateOutput()
+
+    def updateOutput(self):
+
+        # Processed image (fetched from the network)
+        im_prev_trans = self.network.processed_image
+        im_trans = QtGui.QImage(im_prev_trans.data, im_prev_trans.shape[1],
+                                im_prev_trans.shape[0],
+                                QtGui.QImage.Format_Indexed8)
+        colortable = [QtGui.qRgb(i, i, i) for i in range(255)]
+        im_trans.setColorTable(colortable)
+        im_trans_scaled = im_trans.scaled(self.im_trans_label.size())
+        self.im_trans_label.setPixmap(QtGui.QPixmap.fromImage(im_trans_scaled))
+
+        # We "turn on" the digit that it's been classified.
+        self.lightON(self.network.output_digit)
