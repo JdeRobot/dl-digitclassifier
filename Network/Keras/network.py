@@ -41,9 +41,11 @@ class Network:
 
         self.input_image = None
         self.processed_image = np.zeros([28, 28])
-        self.output_digit = None
+        self.output_digit = 0
 
-        self.activated = False
+
+    def setCamera(self, cam):
+        self.cam = cam
 
     def classify(self, img):
         '''
@@ -76,13 +78,25 @@ class Network:
         self.processed_image = im_edges
 
 
-    def update(self):
-        self.output_digit = self.classify(self.processed_image)
+    def predict(self):
+        self.input_image = self.cam.get_image()
+        self.transformImage()
 
-    def toggleNetwork(self):
-        self.activated = not self.activated
+        if backend.image_dim_ordering() == 'th':
+            img = self.processed_image.reshape(1, 1, img.shape[0], img.shape[1])
+        else:
+            img = self.processed_image.reshape([1, 28, 28, 1])
 
-        return self.activated
+        with self.graph.as_default():
+            output = self.model.predict(img)
+
+        self.output_digit = np.argmax(output)
+
+
+
+
+
+
 
 if __name__ == "__main__":
     nb_epoch = 100

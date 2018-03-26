@@ -14,17 +14,19 @@ https://github.com/RoboticsURJC-students/2016-tfg-david-pascual/blob/master/digi
 __author__ = "naxvm"
 __date__ = "2017/10/--"
 
-import signal
 import sys
+import signal
+
 from PyQt5 import QtWidgets
-import config
-import comm
 
 from Camera.camera import Camera
 from Camera.threadcamera import ThreadCamera
 from GUI.gui import GUI
 from GUI.threadgui import ThreadGUI
 from Network.threadnetwork import ThreadNetwork
+
+import config
+import comm
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -54,21 +56,32 @@ if __name__ == '__main__':
         raise SystemExit(('%s not supported! Supported frameworks: Keras, TensorFlow') % (network_framework))
 
     cam = Camera(proxy)
+    t_cam = ThreadCamera(cam)
+    t_cam.start()
+
     network = Network(network_model_path)
+    network.setCamera(cam)
     t_network = ThreadNetwork(network)
+    t_network.start()
 
     app = QtWidgets.QApplication(sys.argv)
     window = GUI(framework_title)
-    window.setCamera(cam)
+    window.setCamera(cam, t_cam)
     window.setNetwork(network, t_network)
     window.show()
 
-    # Threading camera
-    t_cam = ThreadCamera(cam)
-    t_cam.start()
 
     # Threading GUI
     t_gui = ThreadGUI(window)
     t_gui.start()
+
+
+    print("")
+    print("Framework used: %s" %(framework_title))
+    print("Requested timers:")
+    print("    Camera: %d ms" % (t_cam.t_cycle))
+    print("    GUI: %d ms" % (t_gui.t_cycle))
+    print("    Network: %d ms" % (t_network.t_cycle))
+    print("")
 
     sys.exit(app.exec_())
